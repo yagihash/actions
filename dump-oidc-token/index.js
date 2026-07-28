@@ -33,7 +33,7 @@ try {
     const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
 
     console.log('::group::OIDC token claims');
-    console.log(JSON.stringify(claims, null, 2));
+    console.table(claims);
     console.log('::endgroup::');
 
     appendFileSync(process.env.GITHUB_OUTPUT, `claims=${JSON.stringify(claims)}\n`);
