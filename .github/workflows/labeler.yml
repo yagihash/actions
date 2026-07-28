@@ -7,6 +7,11 @@ jobs:
   label:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Skip the update-readme-pins.yml bot PR: it always touches every
+    # action's README.md in one PR, so path-based labeling would tag it
+    # with every action's label and misrepresent it as a feature/bugfix
+    # change in the CHANGELOG. See CLAUDE.md.
+    if: ${{ !startsWith(github.event.pull_request.head.ref, 'update-readme-pins-') }}
     permissions:
       contents: read
       pull-requests: write
