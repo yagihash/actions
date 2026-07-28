@@ -1,0 +1,15 @@
+name: Dump OIDC token claims
+description: Fetch the GitHub Actions OIDC ID token and print its claims, for quickly inspecting what's inside it during workflow development
+
+inputs:
+  audience:
+    description: Audience to request the OIDC token for
+    required: false
+
+outputs:
+  claims:
+    description: JSON-encoded OIDC token claims
+
+runs:
+  using: node24
+  main: index.js
