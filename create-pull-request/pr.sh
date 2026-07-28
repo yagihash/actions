@@ -26,14 +26,14 @@ PR_URL=$(echo "$RESULT" | jq -r '.url')
 PR_NUMBER=$(echo "$RESULT" | jq -r '.number')
 
 if [[ -n "$REVIEWERS" ]]; then
-  jq -Rn '[splits(",") | select(length > 0)]' <<< "$REVIEWERS" | \
+  jq -R '[splits(",") | select(length > 0)]' <<< "$REVIEWERS" | \
   jq '{reviewers: .}' | \
   gh api "repos/${REPO}/pulls/${PR_NUMBER}/requested_reviewers" \
     --method POST --input -
 fi
 
 if [[ -n "$LABELS" ]]; then
-  jq -Rn '[splits(",") | select(length > 0)]' <<< "$LABELS" | \
+  jq -R '[splits(",") | select(length > 0)]' <<< "$LABELS" | \
   jq '{labels: .}' | \
   gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" \
     --method POST --input -
