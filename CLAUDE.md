@@ -32,7 +32,7 @@
 - この PR も `contents: write` が必要なので、`tagpr.yml` と同様 `ghmint-action`（`policy: writer`）でトークンを取得している。
 - **新しい action を追加するときの README 利用例のバージョン指定**: 追加時点でその action はまだどのタグにも含まれていない（タグ・バージョンはリポジトリ全体で1系統なので、新規 action 用の専用タグは存在しない）。このとき example の `uses:` に書くべきなのは「まだ存在しない将来のバージョンの予想値」ではなく、**その時点で実際に存在している最新タグ**（例: `v0.0.2`）。
   - 実例: `dump-oidc-token/README.md` は当初 `@v1.0.0`（存在しないタグ）を参照しており、これは pinact による解決に失敗する状態だった。実際に自動ワークフローがこれを検知して失敗する前に手動で `v0.0.2`（当時実在した最新タグ）に修正した（`Pin the README usage example to a real tag/SHA` コミット）。**存在しないタグを書くと pinact が失敗する、というのは実例で確認済み**。
-  - 一方、「実在する古いタグを書いておけば、次のリリース時に `pinact run -u` が自動的に最新版へ向け直してくれる」という点は pinact の `-u`（`--update`）オプションの一般的な仕様説明に基づく想定であり、**このリポジトリではまだ実際に確認できていない**（`update-readme-pins.yml` が「既存の古い pin をより新しいタグへ更新した」実行はまだ無い）。次にリリースが作られたときの `signed-commit`/`create-pull-request` の README の動きで初めて検証できる。もし自動更新されなかった場合は、`dump-oidc-token` のときと同様に手動で pin し直す必要がある。
+  - 「実在する古いタグを書いておけば、次のリリース時に `pinact run -u` が自動的に最新版へ向け直してくれる」という点も**実例で確認済み**: v0.0.3 リリース後の `update-readme-pins.yml` 実行（PR #19）で `dump-oidc-token/README.md` の pin が `v0.0.2` の SHA から `v0.0.3` の SHA に自動更新された。新規追加した `signed-commit`/`create-pull-request` の未 pin な参照（`@v0.0.2` や `actions/checkout@v5` など）も、このタイミングで正しく最新版に pin された。
 
 ## action ごとの動作確認（CI）
 
