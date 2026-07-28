@@ -28,7 +28,7 @@ jobs:
           scope: ${{ github.repository }}
           policy: writer
 
-      - uses: yagihash/actions/signed-commit@77c439ab7748fa80819f2b4e578daabcb9a680f8 # v0.0.3
+      - uses: yagihash/actions/signed-commit@75a36e929a30f99149784465dcdf9d33ab01a120 # v0.0.4
         id: commit
         with:
           token: ${{ steps.token.outputs.token }}
