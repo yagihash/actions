@@ -20,6 +20,9 @@
   1. `.github/labeler.yml` に `action:<name>` ラベルを付与するパスルールを追加する（`.github/workflows/labeler.yml` が PR に自動でラベルを付ける）
   2. `.github/release.yml` に `action:<name>` ラベル用のカテゴリを追加する
   - これによりタグ・バージョンは1系統のまま、CHANGELOG のセクションだけ action ごとに分かれる。
+- **注意（実例で確認済み）**: 1つの PR が複数の `action:<name>` ラベルを持っていても、CHANGELOG 上では `.github/release.yml` の `changelog.categories` リストで**最初にマッチした1カテゴリにしか表示されない**（GitHub の自動生成リリースノートの仕様。複数カテゴリに重複表示はされない）。
+  - 実例: PR #14 で `signed-commit` と `create-pull-request` を1つの PR にまとめて追加したところ、両方のラベルが付いたにもかかわらず CHANGELOG には（`release.yml` でリストの先に書いてあった）`signed-commit` セクションにしか載らなかった（`create-pull-request` セクションは空のまま）。
+  - そのため、**複数の action を新規追加するときは、CHANGELOG 上でそれぞれ独立して見せたいなら PR を action ごとに分ける**こと。1つの PR にまとめる場合は、どれか1カテゴリにしか表示されないことを許容した上で行う。
 
 ## README の pin 自動更新
 
