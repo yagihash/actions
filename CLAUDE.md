@@ -8,6 +8,9 @@
 - tagpr の `tagPrefix`（monorepo 向けの独立バージョニング機能。例: `foo` → `foo/v1.2.3` のようなタグを打てる）は**あえて使わない**。
   - 理由: `tagPrefix` を使うと `uses: yagihash/actions/foo@foo/v1.2.3` のようにタグ名にもパスと同じ文字列が登場し、`uses:` のパス指定とタグ指定が紛らわしくなる。利用者から見て `uses: yagihash/actions/foo@vX.Y.Z` とシンプルに参照できる方を優先する。
 - action ごとの変更を区別したい場合は、タグを分けるのではなく **CHANGELOG.md / リリースノートの表示だけを action ごとに分ける**（後述）。
+- `.tagpr` の `release = true` により、タグ付けと同時に GitHub Release も作成する。リリースノートの内容は CHANGELOG.md と同じ `.github/release.yml` のカテゴリ設定に従う。
+- このリポジトリは [Immutable releases](https://github.blog/changelog/2025-10-28-immutable-releases-are-now-generally-available/) が有効（`repos/actions.yaml` の `release_immutability: true`）。Immutable releases は「実際に Release を作成したタグ」だけを削除・force-move 不可にする仕様なので、1バージョンにつき1回しかタグを打たない今の運用（tagpr の通常のフロー）とは相性が良く、特に問題は無い。
+  - **注意**: 将来 `v1` のようなメジャーバージョンの rolling tag（最新の `v1.x.x` に force-move し続けるタグ、`ghat` の `release.yml` がやっている手法）を追加したくなった場合、その `v1` タグ自体には GitHub Release を紐付けてはいけない。Release を作った時点でそのタグが immutable になり、二度と force-move できなくなるため。
 
 ## CHANGELOG / リリースノートの生成
 
