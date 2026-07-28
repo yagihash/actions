@@ -26,6 +26,9 @@
 - 各 action の README には利用例として `uses: yagihash/actions/<name>@<SHA> # vX.Y.Z` の形式で pin した参照を載せる。
 - リリースが作成されるたびに `.github/workflows/update-readme-pins.yml` が `pinact run -u` を各 action ディレクトリ（`.github/` 直下は対象外）の README に対して実行し、最新リリースへの pin に更新した上で PR を自動で立てる。
 - この PR も `contents: write` が必要なので、`tagpr.yml` と同様 `ghmint-action`（`policy: writer`）でトークンを取得している。
+- **新しい action を追加するときの README 利用例のバージョン指定**: 追加時点でその action はまだどのタグにも含まれていない（タグ・バージョンはリポジトリ全体で1系統なので、新規 action 用の専用タグは存在しない）。このとき example の `uses:` に書くべきなのは「まだ存在しない将来のバージョンの予想値」ではなく、**その時点で実際に存在している最新タグ**（例: `v0.0.2`）。
+  - 理由: `pinact run -u` は README に書かれた ref をそのまま SHA 解決するのではなく、その都度 owner/repo の**最新タグに向け直す** 動作をする。そのため最初に書いたバージョンが何であれ、次のリリースが作られた時点で自動的に正しい最新バージョンへ書き換わる。
+  - 存在しないタグ（typo や未確定の将来バージョンの予想）を書いてしまうと、リリース時に `pinact run -u` がそのタグの解決に失敗し、ワークフロー全体（他の action の README 更新も含む）が失敗する。一方、実在する古いタグを書いておくのは安全で、次のリリースまでの一時的な期間だけ「その action がまだ存在しなかった頃の SHA を指す」やや不正確な状態になるが、実害はなく次のリリースで自動的に解消される。
 
 ## action ごとの動作確認（CI）
 
@@ -33,6 +36,7 @@
 - 各 action 用の動作確認ワークフローは `.github/workflows/<action名>_ci.yml` という命名にする。
 - トリガーは `paths: ["<action名>/**"]` で、その action のディレクトリが変更されたときだけ実行されるようにする。branch protection の required status check にはなっていないため、`ghalint.yml` のような `paths-filter` + `if` によるスキップ方式（required check がパス不一致で消えるのを防ぐための仕組み）は不要で、trigger レベルの `paths:` で十分。
 - ワークフロー内では `uses: ./<action名>` でローカルの action を直接呼び出し、実際に実行して確認する（`ghmint-action` の `test.yml` と同じ発想）。
+- **例外**: action を実際に呼び出すこと自体が外部への副作用（コミット作成・PR作成など、GitHub 上の実データを変更する操作）を伴う場合（例: `signed-commit`, `create-pull-request`）は、PR のたびに使い捨てのコミット・PR が自動生成されてしまい冗長なので、`uses: ./<action名>` による実行確認は行わない。代わりにシェルスクリプトへの `shellcheck` など静的チェックのみを `<action名>_ci.yml` で実行する。実際の動作確認は、その action を実運用で呼び出しているワークフロー（例: `update-readme-pins.yml`）が実際に走った際の結果で行う。
 
 ## ghmint 連携（tagpr の認証）
 
