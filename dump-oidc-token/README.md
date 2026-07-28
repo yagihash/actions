@@ -14,7 +14,7 @@ jobs:
   example:
     runs-on: ubuntu-latest
     steps:
-      - uses: yagihash/actions/dump-oidc-token@2324627b4cc2bad4d07242554c11e825f9529ccc # v0.0.2
+      - uses: yagihash/actions/dump-oidc-token@77c439ab7748fa80819f2b4e578daabcb9a680f8 # v0.0.3
         id: claims
 
       - run: echo '${{ steps.claims.outputs.claims }}'

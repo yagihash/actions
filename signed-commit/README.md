@@ -17,18 +17,18 @@ jobs:
   example:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Create GitHub App Token
         id: token
-        uses: yagihash/ghmint-action@v1.0.0
+        uses: yagihash/ghmint-action@be57533eef7f69550d06f0c93eede5589158281a # v1.0.0
         with:
           scope: ${{ github.repository }}
           policy: writer
 
-      - uses: yagihash/actions/signed-commit@v0.0.2
+      - uses: yagihash/actions/signed-commit@77c439ab7748fa80819f2b4e578daabcb9a680f8 # v0.0.3
         id: commit
         with:
           token: ${{ steps.token.outputs.token }}
