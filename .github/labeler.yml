@@ -1,0 +1,10 @@
+# Path-based auto-labeling rules for actions/labeler (see .github/workflows/labeler.yml).
+#
+# When adding a new action in <name>/, add a rule here so its PRs get an
+# "action:<name>" label, then add a matching category to .github/release.yml
+# so that label's changes get their own section in CHANGELOG.md:
+#
+# action:<name>:
+#   - changed-files:
+#       - any-glob-to-any-file: '<name>/**'
+{}
