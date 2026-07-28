@@ -39,8 +39,8 @@ COMMIT_SHA=$(jq -n \
   --arg parent "$BASE_SHA" \
   --arg name "$AUTHOR_NAME" \
   --arg email "$AUTHOR_EMAIL" \
-  '{message: $message, tree: $tree, parents: [$parent],
-    author: {name: $name, email: $email}}' | \
+  '{message: $message, tree: $tree, parents: [$parent]}
+   + (if $name != "" and $email != "" then {author: {name: $name, email: $email}} else {} end)' | \
   gh api "repos/${REPO}/git/commits" --input - --jq '.sha')
 
 if ! gh api "repos/${REPO}/git/refs" \

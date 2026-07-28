@@ -17,11 +17,15 @@ inputs:
     description: Newline-separated list of file paths to commit (relative to workspace)
     required: true
   author-name:
-    description: Commit author name
-    default: github-actions[bot]
+    description: >-
+      Commit author name. Leave unset (default) so GitHub attributes the
+      commit to the authenticated GitHub App and auto-signs it as Verified.
+      Setting this forfeits the Verified badge, since GitHub only
+      auto-verifies commits with no custom author/committer info.
+    default: ""
   author-email:
-    description: Commit author email
-    default: 41898282+github-actions[bot]@users.noreply.github.com
+    description: Commit author email. See author-name for why this defaults to unset.
+    default: ""
 outputs:
   commit-sha:
     description: SHA of the created commit
