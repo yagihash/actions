@@ -1,0 +1,43 @@
+name: Signed Commit
+description: Create a signed commit via the GitHub Git Data API
+inputs:
+  token:
+    description: GitHub App token with contents:write permission
+    required: true
+  repository:
+    description: Target repository (owner/repo)
+    default: ${{ github.repository }}
+  branch:
+    description: Branch to commit to (created if it does not exist)
+    required: true
+  message:
+    description: Commit message
+    required: true
+  files:
+    description: Newline-separated list of file paths to commit (relative to workspace)
+    required: true
+  author-name:
+    description: Commit author name
+    default: github-actions[bot]
+  author-email:
+    description: Commit author email
+    default: 41898282+github-actions[bot]@users.noreply.github.com
+outputs:
+  commit-sha:
+    description: SHA of the created commit
+    value: ${{ steps.commit.outputs.commit_sha }}
+runs:
+  using: composite
+  steps:
+    - name: Create signed commit
+      id: commit
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REPO: ${{ inputs.repository }}
+        BRANCH: ${{ inputs.branch }}
+        MESSAGE: ${{ inputs.message }}
+        FILES: ${{ inputs.files }}
+        AUTHOR_NAME: ${{ inputs.author-name }}
+        AUTHOR_EMAIL: ${{ inputs.author-email }}
+      run: ${{ github.action_path }}/commit.sh

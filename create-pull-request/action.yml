@@ -1,0 +1,54 @@
+name: Create Pull Request
+description: Create a pull request using a GitHub App token
+inputs:
+  token:
+    description: GitHub App token with pull-requests:write permission
+    required: true
+  repository:
+    description: Target repository (owner/repo)
+    default: ${{ github.repository }}
+  title:
+    description: Pull request title
+    required: true
+  body:
+    description: Pull request body (Markdown)
+    default: ""
+  head:
+    description: Head branch name
+    required: true
+  base:
+    description: Base branch name
+    default: main
+  reviewers:
+    description: Comma-separated list of reviewer logins (optional)
+    default: ""
+  labels:
+    description: Comma-separated list of labels (optional)
+    default: ""
+  draft:
+    description: Create as draft PR
+    default: "false"
+outputs:
+  pull-request-url:
+    description: URL of the created or existing pull request
+    value: ${{ steps.pr.outputs.pull_request_url }}
+  pull-request-number:
+    description: Number of the created or existing pull request
+    value: ${{ steps.pr.outputs.pull_request_number }}
+runs:
+  using: composite
+  steps:
+    - name: Create pull request
+      id: pr
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REPO: ${{ inputs.repository }}
+        TITLE: ${{ inputs.title }}
+        BODY: ${{ inputs.body }}
+        HEAD: ${{ inputs.head }}
+        BASE: ${{ inputs.base }}
+        REVIEWERS: ${{ inputs.reviewers }}
+        LABELS: ${{ inputs.labels }}
+        DRAFT: ${{ inputs.draft }}
+      run: ${{ github.action_path }}/pr.sh

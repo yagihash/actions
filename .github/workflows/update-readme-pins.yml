@@ -47,23 +47,48 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet; then
+          changed_files=$(git diff --name-only)
+          if [[ -z "$changed_files" ]]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "files<<EOF"
+              echo "$changed_files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Resolve release metadata
+        if: steps.diff.outputs.changed == 'true'
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          version="$RELEASE_TAG"
+          if [[ -z "$version" ]]; then
+            version=$(gh api "repos/${REPO}/releases/latest" --jq '.tag_name')
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "branch=update-readme-pins-${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: Create signed commit
+        if: steps.diff.outputs.changed == 'true'
+        uses: ./signed-commit
+        with:
+          token: ${{ steps.token.outputs.token }}
+          branch: ${{ steps.meta.outputs.branch }}
+          message: "Update pinned action references in READMEs (${{ steps.meta.outputs.version }})"
+          files: ${{ steps.diff.outputs.files }}
 
       - name: Open pull request
         if: steps.diff.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ steps.token.outputs.token }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          branch="update-readme-pins-${GITHUB_SHA:0:7}"
-          git checkout -b "$branch"
-          git commit -am "Update pinned action references in READMEs"
-          git push origin "$branch"
-          gh pr create --title "Update pinned action references in READMEs" \
-            --body "Automated update of pinned action references in per-action READMEs after a new release." \
-            --label dependencies
+        uses: ./create-pull-request
+        with:
+          token: ${{ steps.token.outputs.token }}
+          head: ${{ steps.meta.outputs.branch }}
+          title: "Update pinned action references in READMEs (${{ steps.meta.outputs.version }})"
+          body: "Automated update of pinned action references in per-action READMEs after a new release."
+          labels: dependencies
