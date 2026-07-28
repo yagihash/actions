@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${BRANCH}" \
-  --jq '.object.sha' 2>/dev/null || \
-  gh api "repos/${REPO}" --jq '.default_branch' | \
-  xargs -I{} gh api "repos/${REPO}/git/ref/heads/{}" --jq '.object.sha')
+if ! BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${BRANCH}" --jq '.object.sha' 2>/dev/null); then
+  DEFAULT_BRANCH=$(gh api "repos/${REPO}" --jq '.default_branch')
+  BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')
+fi
 BASE_TREE=$(gh api "repos/${REPO}/git/commits/${BASE_SHA}" --jq '.tree.sha')
 
 TREE_ENTRIES=()
@@ -43,12 +43,13 @@ COMMIT_SHA=$(jq -n \
     author: {name: $name, email: $email}}' | \
   gh api "repos/${REPO}/git/commits" --input - --jq '.sha')
 
-gh api "repos/${REPO}/git/refs" \
+if ! gh api "repos/${REPO}/git/refs" \
   --field ref="refs/heads/${BRANCH}" \
-  --field sha="${COMMIT_SHA}" 2>/dev/null || \
-gh api "repos/${REPO}/git/refs/heads/${BRANCH}" \
-  --method PATCH \
-  --field sha="${COMMIT_SHA}" \
-  --field force=false
+  --field sha="${COMMIT_SHA}" >/dev/null 2>&1; then
+  gh api "repos/${REPO}/git/refs/heads/${BRANCH}" \
+    --method PATCH \
+    --field sha="${COMMIT_SHA}" \
+    --field force=false
+fi
 
 echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
