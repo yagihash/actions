@@ -23,6 +23,7 @@
 - **注意（実例で確認済み）**: 1つの PR が複数の `action:<name>` ラベルを持っていても、CHANGELOG 上では `.github/release.yml` の `changelog.categories` リストで**最初にマッチした1カテゴリにしか表示されない**（GitHub の自動生成リリースノートの仕様。複数カテゴリに重複表示はされない）。
   - 実例: PR #14 で `signed-commit` と `create-pull-request` を1つの PR にまとめて追加したところ、両方のラベルが付いたにもかかわらず CHANGELOG には（`release.yml` でリストの先に書いてあった）`signed-commit` セクションにしか載らなかった（`create-pull-request` セクションは空のまま）。
   - そのため、**複数の action を新規追加するときは、CHANGELOG 上でそれぞれ独立して見せたいなら PR を action ごとに分ける**こと。1つの PR にまとめる場合は、どれか1カテゴリにしか表示されないことを許容した上で行う。
+  - **Renovate にも同じ注意が必要**: `renovate.json` の `packageRules` には `matchManagers: ["github-actions"]` を対象にリポジトリ全体で1グループにまとめて `automerge: true` するルールがある。現時点ではどの action の `action.yml` も外部 action の `uses:` を参照していない（`.github/workflows/*_ci.yml` 側の `actions/checkout` bump は `<name>/` 配下ではないので `action:<name>` ラベルが付かず、単に `Dependencies` カテゴリに入るだけで問題ない）。ただし将来複数の action の `action.yml` が外部 action を参照するようになると、Renovate が1つの PR に複数 `action:<name>` ラベルをまとめて自動マージし、人間のチェックなしに同じ CHANGELOG 欠落が起きうる。そうなったタイミングで `renovate.json` の該当 `packageRules` を action ディレクトリ単位（`matchFileNames` 等）でグループ分けし直すことを検討する。
 
 ## README の pin 自動更新
 
