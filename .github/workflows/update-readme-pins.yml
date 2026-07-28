@@ -1,0 +1,69 @@
+name: "Update pinned README examples"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  update-readme-pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Create GitHub App Token
+        id: token
+        uses: yagihash/ghmint-action@be57533eef7f69550d06f0c93eede5589158281a # v1.0.0
+        with:
+          scope: ${{ github.repository }}
+          policy: writer
+
+      - name: Install pinact
+        run: |
+          # renovate: datasource=github-releases depName=suzuki-shunsuke/pinact
+          version=v4.1.0
+          gh release download -R suzuki-shunsuke/pinact "${version}" -p "pinact_linux_amd64.tar.gz"
+          gh attestation verify "pinact_linux_amd64.tar.gz" \
+            -R suzuki-shunsuke/pinact \
+            --signer-workflow suzuki-shunsuke/go-release-workflow/.github/workflows/release.yaml
+          tar xzf "pinact_linux_amd64.tar.gz" pinact
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Update pinned action references in READMEs
+        run: |
+          mapfile -t readmes < <(find . -mindepth 2 -maxdepth 2 -name README.md -not -path './.git/*' -not -path './.github/*')
+          ./pinact run -u "${readmes[@]}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="update-readme-pins-${GITHUB_SHA:0:7}"
+          git checkout -b "$branch"
+          git commit -am "Update pinned action references in READMEs"
+          git push origin "$branch"
+          gh pr create --title "Update pinned action references in READMEs" \
+            --body "Automated update of pinned action references in per-action READMEs after a new release." \
+            --label dependencies
