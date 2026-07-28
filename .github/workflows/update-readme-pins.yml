@@ -91,4 +91,3 @@ jobs:
           head: ${{ steps.meta.outputs.branch }}
           title: "Update pinned action references in READMEs (${{ steps.meta.outputs.version }})"
           body: "Automated update of pinned action references in per-action READMEs after a new release."
-          labels: dependencies

@@ -33,6 +33,10 @@
 - **新しい action を追加するときの README 利用例のバージョン指定**: 追加時点でその action はまだどのタグにも含まれていない（タグ・バージョンはリポジトリ全体で1系統なので、新規 action 用の専用タグは存在しない）。このとき example の `uses:` に書くべきなのは「まだ存在しない将来のバージョンの予想値」ではなく、**その時点で実際に存在している最新タグ**（例: `v0.0.2`）。
   - 実例: `dump-oidc-token/README.md` は当初 `@v1.0.0`（存在しないタグ）を参照しており、これは pinact による解決に失敗する状態だった。実際に自動ワークフローがこれを検知して失敗する前に手動で `v0.0.2`（当時実在した最新タグ）に修正した（`Pin the README usage example to a real tag/SHA` コミット）。**存在しないタグを書くと pinact が失敗する、というのは実例で確認済み**。
   - 「実在する古いタグを書いておけば、次のリリース時に `pinact run -u` が自動的に最新版へ向け直してくれる」という点も**実例で確認済み**: v0.0.3 リリース後の `update-readme-pins.yml` 実行（PR #19）で `dump-oidc-token/README.md` の pin が `v0.0.2` の SHA から `v0.0.3` の SHA に自動更新された。新規追加した `signed-commit`/`create-pull-request` の未 pin な参照（`@v0.0.2` や `actions/checkout@v5` など）も、このタイミングで正しく最新版に pin された。
+- **`update-readme-pins.yml` が作る PR には意図的にラベルを一切付けない**: この PR は毎回すべての action の README を一括で書き換えるため、`.github/labeler.yml` のパスベースの自動ラベリングをそのまま適用すると存在する `action:<name>` ラベルが全部付いてしまい、CHANGELOG 上「特定の1 action の変更」であるかのように誤って分類されてしまう（しかも「最初にマッチした1カテゴリにしか表示されない」仕様と組み合わさるとどの action のセクションに出るか予測できない）。また中身は pin コメントの書き換えだけで実際の依存関係バンプでもないので `dependencies` ラベルも意味的に不適切。そのため:
+  - `.github/workflows/labeler.yml` は `head.ref` が `update-readme-pins-` で始まる PR をジョブレベルの `if:` でスキップし、そもそも `action:<name>` ラベルを付けさせない。
+  - `update-readme-pins.yml` 自身も `create-pull-request` 呼び出しに `labels:` を指定しない。
+  - 結果としてこの PR にはラベルが一切付かず、CHANGELOG の include-only 運用により自動的に非表示になる（これは意図した挙動）。
 
 ## action ごとの動作確認（CI）
 
