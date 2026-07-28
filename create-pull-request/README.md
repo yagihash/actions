@@ -20,12 +20,12 @@ jobs:
     steps:
       - name: Create GitHub App Token
         id: token
-        uses: yagihash/ghmint-action@v1.0.0
+        uses: yagihash/ghmint-action@be57533eef7f69550d06f0c93eede5589158281a # v1.0.0
         with:
           scope: ${{ github.repository }}
           policy: writer
 
-      - uses: yagihash/actions/create-pull-request@v0.0.2
+      - uses: yagihash/actions/create-pull-request@77c439ab7748fa80819f2b4e578daabcb9a680f8 # v0.0.3
         id: pr
         with:
           token: ${{ steps.token.outputs.token }}
