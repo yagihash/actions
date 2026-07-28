@@ -1,5 +1,7 @@
 # Changelog
 
+## [v0.0.5](https://github.com/yagihash/actions/compare/v0.0.4...v0.0.5) - 2026-07-28
+
 ## [v0.0.4](https://github.com/yagihash/actions/compare/v0.0.3...v0.0.4) - 2026-07-28
 
 ### dump-oidc-token
