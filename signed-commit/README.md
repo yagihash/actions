@@ -2,7 +2,7 @@
 
 A GitHub Action that creates a signed (Verified) commit via the [GitHub Git Data API](https://docs.github.com/en/rest/git), using a provided GitHub App token.
 
-Pass a GitHub App installation token (e.g. minted via [yagihash/ghmint-action](https://github.com/yagihash/ghmint-action)), not the built-in `GITHUB_TOKEN`, so that the commit appears under the App's identity with the "Verified" badge. GitHub signs commits created via the API when using a valid App token.
+Pass a GitHub App installation token (e.g. minted via [yagihash/ghmint-action](https://github.com/yagihash/ghmint-action)), not the built-in `GITHUB_TOKEN`, so that the commit appears under the App's identity with the "Verified" badge. GitHub only auto-verifies API-created commits that have **no custom author/committer info**, so leave `author-name`/`author-email` unset (the default) to get the Verified badge — GitHub then attributes the commit to the authenticated App and signs it automatically.
 
 This action can be called multiple times on the same branch to stack commits — each call reads the current HEAD of the branch, so commits are correctly chained.
 
@@ -50,8 +50,8 @@ jobs:
 | `branch`       | Yes      | —                                                            | Branch to commit to (created if it does not exist)                |
 | `message`      | Yes      | —                                                            | Commit message                                                    |
 | `files`        | Yes      | —                                                            | Newline-separated list of file paths to commit (relative to workspace) |
-| `author-name`  | No       | `github-actions[bot]`                                        | Commit author name                                                |
-| `author-email` | No       | `41898282+github-actions[bot]@users.noreply.github.com`      | Commit author email                                                |
+| `author-name`  | No       | `""` (unset)                                                  | Commit author name. Leave unset to keep the Verified badge — see above |
+| `author-email` | No       | `""` (unset)                                                  | Commit author email. Leave unset to keep the Verified badge — see above |
 
 ## Outputs
 
