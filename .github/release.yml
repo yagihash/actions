@@ -3,6 +3,12 @@ changelog:
     - title: dump-oidc-token
       labels:
         - "action:dump-oidc-token"
+    - title: signed-commit
+      labels:
+        - "action:signed-commit"
+    - title: create-pull-request
+      labels:
+        - "action:create-pull-request"
     - title: Features
       labels:
         - feature

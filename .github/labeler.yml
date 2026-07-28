@@ -11,3 +11,11 @@
 "action:dump-oidc-token":
   - changed-files:
       - any-glob-to-any-file: "dump-oidc-token/**"
+
+"action:signed-commit":
+  - changed-files:
+      - any-glob-to-any-file: "signed-commit/**"
+
+"action:create-pull-request":
+  - changed-files:
+      - any-glob-to-any-file: "create-pull-request/**"
