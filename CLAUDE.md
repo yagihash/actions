@@ -21,6 +21,12 @@
   2. `.github/release.yml` に `action:<name>` ラベル用のカテゴリを追加する
   - これによりタグ・バージョンは1系統のまま、CHANGELOG のセクションだけ action ごとに分かれる。
 
+## README の pin 自動更新
+
+- 各 action の README には利用例として `uses: yagihash/actions/<name>@<SHA> # vX.Y.Z` の形式で pin した参照を載せる。
+- リリースが作成されるたびに `.github/workflows/update-readme-pins.yml` が `pinact run -u` を各 action ディレクトリ（`.github/` 直下は対象外）の README に対して実行し、最新リリースへの pin に更新した上で PR を自動で立てる。
+- この PR も `contents: write` が必要なので、`tagpr.yml` と同様 `ghmint-action`（`policy: writer`）でトークンを取得している。
+
 ## action ごとの動作確認（CI）
 
 - 各 action に変更が入った際は、実際にその action を GitHub Actions 上で動かして PR 上で動作確認することを原則とする。
