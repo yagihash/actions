@@ -1,0 +1,7 @@
+{
+  "name": "dump-oidc-token",
+  "version": "1.0.0",
+  "description": "Fetch and print the claims of a GitHub Actions OIDC token",
+  "license": "MIT",
+  "type": "module"
+}

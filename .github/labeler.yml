@@ -7,4 +7,7 @@
 # action:<name>:
 #   - changed-files:
 #       - any-glob-to-any-file: '<name>/**'
-{}
+
+"action:dump-oidc-token":
+  - changed-files:
+      - any-glob-to-any-file: "dump-oidc-token/**"

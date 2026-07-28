@@ -18,6 +18,13 @@
   2. `.github/release.yml` に `action:<name>` ラベル用のカテゴリを追加する
   - これによりタグ・バージョンは1系統のまま、CHANGELOG のセクションだけ action ごとに分かれる。
 
+## action ごとの動作確認（CI）
+
+- 各 action に変更が入った際は、実際にその action を GitHub Actions 上で動かして PR 上で動作確認することを原則とする。
+- 各 action 用の動作確認ワークフローは `.github/workflows/<action名>_ci.yml` という命名にする。
+- トリガーは `paths: ["<action名>/**"]` で、その action のディレクトリが変更されたときだけ実行されるようにする。branch protection の required status check にはなっていないため、`ghalint.yml` のような `paths-filter` + `if` によるスキップ方式（required check がパス不一致で消えるのを防ぐための仕組み）は不要で、trigger レベルの `paths:` で十分。
+- ワークフロー内では `uses: ./<action名>` でローカルの action を直接呼び出し、実際に実行して確認する（`ghmint-action` の `test.yml` と同じ発想）。
+
 ## ghmint 連携（tagpr の認証）
 
 - `.github/workflows/tagpr.yml` は [yagihash/ghmint-action](https://github.com/yagihash/ghmint-action) 経由で `policy: writer` の GitHub App トークンを取得している。

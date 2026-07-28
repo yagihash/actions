@@ -1,0 +1,34 @@
+name: "dump-oidc-token CI"
+
+on:
+  pull_request:
+    paths:
+      - "dump-oidc-token/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "dump-oidc-token/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run action
+        id: claims
+        uses: ./dump-oidc-token
+
+      - name: Show claims output
+        env:
+          CLAIMS: ${{ steps.claims.outputs.claims }}
+        run: echo "$CLAIMS"

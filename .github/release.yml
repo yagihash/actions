@@ -1,5 +1,8 @@
 changelog:
   categories:
+    - title: dump-oidc-token
+      labels:
+        - "action:dump-oidc-token"
     - title: Features
       labels:
         - feature
