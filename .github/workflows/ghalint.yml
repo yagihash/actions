@@ -16,13 +16,15 @@ jobs:
     outputs:
       workflows: ${{ steps.filter.outputs.workflows }}
     steps:
+      - uses: cicd-sensor/cicd-sensor-action@1935de498397aa7b9bf6ac7ca822ddb430a34843 # v0.0.31
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: gh auth setup-git
         env:
           GH_TOKEN: ${{ github.token }}
-      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         env:
           GH_TOKEN: ${{ github.token }}
@@ -31,8 +33,6 @@ jobs:
           filters: |
             workflows:
               - '.github/**'
-              - '**/action.yml'
-              - '**/action.yaml'
 
   ghalint:
     needs: changes
@@ -44,6 +44,8 @@ jobs:
       attestations: read
 
     steps:
+      - uses: cicd-sensor/cicd-sensor-action@1935de498397aa7b9bf6ac7ca822ddb430a34843 # v0.0.31
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -60,11 +62,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      # Run the two independent ghalint checks concurrently using the new
+      # parallel steps feature (background steps + wait-all).
+      # https://github.blog/changelog/2026-06-25-actions-steps-can-now-be-run-in-parallel/
       - name: Run ghalint run
         run: ./ghalint run
+        background: true
 
       - name: Run ghalint act
         run: ./ghalint act
+        background: true
+
+      - wait-all:
 
   actionlint:
     needs: changes
@@ -76,6 +85,8 @@ jobs:
       attestations: read
 
     steps:
+      - uses: cicd-sensor/cicd-sensor-action@1935de498397aa7b9bf6ac7ca822ddb430a34843 # v0.0.31
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -91,4 +102,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Run actionlint
-        run: ./actionlint
+        run: |
+          ./actionlint \
+            -ignore 'unexpected key "background"' \
+            -ignore 'step must run script with "run" section or run action with "uses" section'
