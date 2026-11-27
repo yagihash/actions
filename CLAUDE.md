@@ -42,7 +42,7 @@
 
 - 各 action に変更が入った際は、実際にその action を GitHub Actions 上で動かして PR 上で動作確認することを原則とする。
 - 各 action 用の動作確認ワークフローは `.github/workflows/<action名>_ci.yml` という命名にする。
-- トリガーは `paths: ["<action名>/**"]` で、その action のディレクトリが変更されたときだけ実行されるようにする。branch protection の required status check にはなっていないため、`ghalint.yml` のような `paths-filter` + `if` によるスキップ方式（required check がパス不一致で消えるのを防ぐための仕組み）は不要で、trigger レベルの `paths:` で十分。
+- トリガーは `paths: ["<action名>/**"]` で、その action のディレクトリが変更されたときだけ実行されるようにする。branch protection の required status check にはなっていないため、`ci.yml` のような `paths-filter` + `if` によるスキップ方式（required check がパス不一致で消えるのを防ぐための仕組み）は不要で、trigger レベルの `paths:` で十分。
 - ワークフロー内では `uses: ./<action名>` でローカルの action を直接呼び出し、実際に実行して確認する（`ghmint-action` の `test.yml` と同じ発想）。
 - **例外**: action を実際に呼び出すこと自体が外部への副作用（コミット作成・PR作成など、GitHub 上の実データを変更する操作）を伴う場合（例: `signed-commit`, `create-pull-request`）は、PR のたびに使い捨てのコミット・PR が自動生成されてしまい冗長なので、`uses: ./<action名>` による実行確認は行わない。代わりにシェルスクリプトへの `shellcheck` など静的チェックのみを `<action名>_ci.yml` で実行する。実際の動作確認は、その action を実運用で呼び出しているワークフロー（例: `update-readme-pins.yml`）が実際に走った際の結果で行う。
 
@@ -57,5 +57,5 @@
 
 ## branch protection
 
-- `yagihash/.github`（gh-infra 管理）の `repos/actions.yaml` に、このリポジトリの branch protection ruleset が定義されている。`main` への PR は `ghalint` / `actionlint` の required status check が必須（`.github/workflows/ghalint.yml` のジョブ名と一致させる必要がある）。
+- `yagihash/.github`（gh-infra 管理）の `repos/actions.yaml` に、このリポジトリの branch protection ruleset が定義されている。`main` への PR は `ghalint` / `actionlint` の required status check が必須（`.github/workflows/ci.yml` のジョブ名と一致させる必要がある）。
 - code owner review は要求していない（個人運用のリポジトリのため、CODEOWNERS は置いていない）。
