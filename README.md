@@ -8,7 +8,7 @@
 
 リポジトリ全体に対して以下のワークフローが共通で動く:
 
-- `.github/workflows/ghalint.yml` — 全 action 共通のセキュリティチェック（[ghalint](https://github.com/suzuki-shunsuke/ghalint) / [actionlint](https://github.com/rhysd/actionlint)）
+- `.github/workflows/ci.yml` — 全 action 共通のセキュリティチェック（[ghalint](https://github.com/suzuki-shunsuke/ghalint) / [actionlint](https://github.com/rhysd/actionlint)）
 - `.github/workflows/tagpr.yml` — [tagpr](https://github.com/Songmu/tagpr) によるリリース（タグ付け）自動化。バージョン・タグはリポジトリ全体で1系統（`vX.Y.Z`）
 - `.github/workflows/labeler.yml` — 変更されたディレクトリに応じて PR に `action:<name>` ラベルを自動付与
 
