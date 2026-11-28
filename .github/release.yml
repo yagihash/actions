@@ -9,6 +9,9 @@ changelog:
     - title: create-pull-request
       labels:
         - "action:create-pull-request"
+    - title: ci-ok
+      labels:
+        - "action:ci-ok"
     - title: Features
       labels:
         - feature

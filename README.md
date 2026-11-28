@@ -17,6 +17,7 @@
 - [`dump-oidc-token`](./dump-oidc-token) — GitHub Actions の OIDC トークンを取得してその claims を表示する
 - [`signed-commit`](./signed-commit) — GitHub Git Data API 経由で署名済み（Verified）コミットを作成する
 - [`create-pull-request`](./create-pull-request) — GitHub App トークンを使って pull request を作成する
+- [`ci-ok`](./ci-ok) — CI の各ジョブの結果をまとめて、必須 check にできる 1 つのジョブにする
 
 ## 新しい action を追加するとき
 
