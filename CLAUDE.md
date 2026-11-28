@@ -57,5 +57,5 @@
 
 ## branch protection
 
-- `yagihash/.github`（gh-infra 管理）の `repos/actions.yaml` に、このリポジトリの branch protection ruleset が定義されている。`main` への PR は `ghalint` / `actionlint` の required status check が必須（`.github/workflows/ci.yml` のジョブ名と一致させる必要がある）。
+- `yagihash/.github`（gh-infra 管理）の `repos/actions.yaml` に、このリポジトリの branch protection ruleset が定義されている。`main` への PR は `ci-ok` の required status check が必須（`.github/workflows/ci.yml` のジョブ名と一致させる必要がある）。
 - code owner review は要求していない（個人運用のリポジトリのため、CODEOWNERS は置いていない）。
