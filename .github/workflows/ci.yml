@@ -15,6 +15,7 @@ jobs:
       pull-requests: read
     outputs:
       workflows: ${{ steps.filter.outputs.workflows }}
+      check-actions-security: ${{ steps.filter.outputs.check-actions-security }}
       ci-ok: ${{ steps.filter.outputs.ci-ok }}
       create-pull-request: ${{ steps.filter.outputs.create-pull-request }}
       dump-oidc-token: ${{ steps.filter.outputs.dump-oidc-token }}
@@ -48,6 +49,9 @@ jobs:
               - 'ghalint.yml'
               - '.github/ghalint.yaml'
               - '.github/ghalint.yml'
+            check-actions-security:
+              - 'check-actions-security/**'
+              - '.github/workflows/ci.yml'
             ci-ok:
               - 'ci-ok/**'
               - '.github/workflows/ci.yml'
@@ -133,6 +137,24 @@ jobs:
           ./actionlint \
             -ignore 'unexpected key "background"' \
             -ignore 'step must run script with "run" section or run action with "uses" section'
+
+  # Calls the local check-actions-security action for real, on the workflows and actions of this repository.
+  check-actions-security:
+    needs: changes
+    if: needs.changes.outputs['check-actions-security'] == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      attestations: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run action
+        uses: ./check-actions-security
 
   ci-ok-test:
     needs: changes
@@ -235,7 +257,7 @@ jobs:
   # when they passed or were skipped (no workflow changed). A job added above has to be added here.
   ci-ok:
     if: always()
-    needs: [changes, ghalint, actionlint, ci-ok-test, ci-ok-action, create-pull-request, dump-oidc-token, signed-commit]
+    needs: [changes, ghalint, actionlint, check-actions-security, ci-ok-test, ci-ok-action, create-pull-request, dump-oidc-token, signed-commit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}
@@ -246,6 +268,7 @@ jobs:
           filter-job: changes
           filter-outputs: |
             workflows
+            check-actions-security
             ci-ok
             create-pull-request
             dump-oidc-token

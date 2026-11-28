@@ -12,6 +12,9 @@ changelog:
     - title: ci-ok
       labels:
         - "action:ci-ok"
+    - title: check-actions-security
+      labels:
+        - "action:check-actions-security"
     - title: Features
       labels:
         - feature
