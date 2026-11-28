@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.2.0](https://github.com/yagihash/actions/compare/v0.1.0...v0.2.0) - 2026-11-28
+
+### check-actions-security
+- feat: ghalint と jactionlint を回す check-actions-security を追加する by @yagihash in https://github.com/yagihash/actions/pull/45
+
 ## [v0.1.0](https://github.com/yagihash/actions/compare/v0.0.4...v0.1.0) - 2026-11-28
 
 ### ci-ok
