@@ -25,7 +25,7 @@ jobs:
           scope: ${{ github.repository }}
           policy: writer
 
-      - uses: yagihash/actions/create-pull-request@75a36e929a30f99149784465dcdf9d33ab01a120 # v0.0.4
+      - uses: yagihash/actions/create-pull-request@b2075301726190d59d2cf57e54d62700c55ae134 # v0.1.0
         id: pr
         with:
           token: ${{ steps.token.outputs.token }}
