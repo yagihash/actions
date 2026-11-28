@@ -31,5 +31,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: yagihash/actions/check-actions-security@75a36e929a30f99149784465dcdf9d33ab01a120 # v0.0.4
+      - uses: yagihash/actions/check-actions-security@9f208d1c7c8bdccc9fb897307a18b15375ee5000 # v0.2.0
 ```
