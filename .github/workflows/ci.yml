@@ -172,7 +172,9 @@ jobs:
         with:
           needs: ${{ toJSON(needs) }}
           filter-job: changes
-          filter-outputs: workflows ci-ok
+          filter-outputs: |
+            workflows
+            ci-ok
 
   create-pull-request:
     needs: changes
@@ -242,4 +244,9 @@ jobs:
         with:
           needs: ${{ toJSON(needs) }}
           filter-job: changes
-          filter-outputs: workflows ci-ok create-pull-request dump-oidc-token signed-commit
+          filter-outputs: |
+            workflows
+            ci-ok
+            create-pull-request
+            dump-oidc-token
+            signed-commit
