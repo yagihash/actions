@@ -23,3 +23,7 @@
 "action:ci-ok":
   - changed-files:
       - any-glob-to-any-file: "ci-ok/**"
+
+"action:check-actions-security":
+  - changed-files:
+      - any-glob-to-any-file: "check-actions-security/**"

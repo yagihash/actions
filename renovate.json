@@ -2,5 +2,17 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>yagihash/renovate-config"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Tool versions installed by a run step in check-actions-security, marked with a `# renovate: datasource=... depName=...` comment above `version=vX.Y.Z`",
+      "managerFilePatterns": [
+        "/^check-actions-security\\/action\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*\\w+=(?<currentValue>\\S+)"
+      ]
+    }
   ]
 }

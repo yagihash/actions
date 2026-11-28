@@ -1,0 +1,76 @@
+name: Check Actions Security
+description: Run ghalint and jactionlint on the workflows and actions of the repository
+inputs:
+  token:
+    description: >-
+      GitHub token to download the releases of the tools and to verify their
+      attestations. The caller needs `attestations: read` for the verification.
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - name: Install ghalint
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        BIN_DIR: ${{ runner.temp }}/check-actions-security
+      run: |
+        # renovate: datasource=github-releases depName=suzuki-shunsuke/ghalint
+        version=v1.6.0
+        case "${RUNNER_ARCH}" in
+          X64) arch=amd64 ;;
+          ARM64) arch=arm64 ;;
+          *) echo "::error::unsupported runner architecture: ${RUNNER_ARCH}"; exit 1 ;;
+        esac
+        [ "${RUNNER_OS}" = "Linux" ] || { echo "::error::unsupported runner OS: ${RUNNER_OS}"; exit 1; }
+        mkdir -p "${BIN_DIR}"
+        cd "${BIN_DIR}" || exit 1
+        asset="ghalint_${version#v}_linux_${arch}.tar.gz"
+        gh release download -R suzuki-shunsuke/ghalint "${version}" -p "${asset}"
+        gh attestation verify "${asset}" \
+          -R suzuki-shunsuke/ghalint \
+          --signer-workflow suzuki-shunsuke/go-release-workflow/.github/workflows/release.yaml
+        tar xzf "${asset}" ghalint
+        rm "${asset}"
+
+    - name: Install jactionlint
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        BIN_DIR: ${{ runner.temp }}/check-actions-security
+      run: |
+        # renovate: datasource=github-releases depName=jdx/jactionlint
+        version=v2.6.0
+        case "${RUNNER_ARCH}" in
+          X64) arch=amd64 ;;
+          ARM64) arch=arm64 ;;
+          *) echo "::error::unsupported runner architecture: ${RUNNER_ARCH}"; exit 1 ;;
+        esac
+        [ "${RUNNER_OS}" = "Linux" ] || { echo "::error::unsupported runner OS: ${RUNNER_OS}"; exit 1; }
+        mkdir -p "${BIN_DIR}"
+        cd "${BIN_DIR}" || exit 1
+        asset="jactionlint_${version#v}_linux_${arch}.tar.gz"
+        gh release download -R jdx/jactionlint "${version}" -p "${asset}"
+        gh attestation verify "${asset}" \
+          -R jdx/jactionlint \
+          --signer-workflow jdx/jactionlint/.github/workflows/release.yaml
+        tar xzf "${asset}" jactionlint
+        rm "${asset}"
+
+    # Run every check even when an earlier one fails, so that one run shows all the findings.
+    - name: Run the checks
+      shell: bash
+      env:
+        BIN_DIR: ${{ runner.temp }}/check-actions-security
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        status=0
+        run_check() {
+          echo "::group::$*"
+          "$@" || status=1
+          echo "::endgroup::"
+        }
+        run_check "${BIN_DIR}/ghalint" run
+        run_check "${BIN_DIR}/ghalint" act
+        run_check "${BIN_DIR}/jactionlint" --profile correctness
+        exit "${status}"
