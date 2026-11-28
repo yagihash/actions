@@ -3,7 +3,7 @@ description: Aggregate the results of CI jobs into a single required check
 inputs:
   needs:
     description: >-
-      The `needs` context of the calling job as JSON (`${{ toJSON(needs) }}`).
+      The `needs` context of the calling job as JSON (pass the output of the toJSON function applied to the needs context).
     required: true
   filter-job:
     description: >-
