@@ -19,3 +19,7 @@
 "action:create-pull-request":
   - changed-files:
       - any-glob-to-any-file: "create-pull-request/**"
+
+"action:ci-ok":
+  - changed-files:
+      - any-glob-to-any-file: "ci-ok/**"

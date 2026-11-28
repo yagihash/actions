@@ -1,0 +1,29 @@
+name: CI OK
+description: Aggregate the results of CI jobs into a single required check
+inputs:
+  needs:
+    description: >-
+      The `needs` context of the calling job as JSON (`${{ toJSON(needs) }}`).
+    required: true
+  filter-job:
+    description: >-
+      Name of the job that decides which paths changed (e.g. `changes`). When
+      set, it has to be in `needs` and has to have succeeded (a skipped
+      filter job is a failure).
+    default: ""
+  filter-outputs:
+    description: >-
+      Whitespace-separated names of the outputs of `filter-job` that have to
+      be answered with `true` or `false` (e.g. `workflows go adr`). Requires
+      `filter-job`.
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Check the results of the jobs
+      shell: bash
+      env:
+        NEEDS: ${{ inputs.needs }}
+        FILTER_JOB: ${{ inputs.filter-job }}
+        FILTER_OUTPUTS: ${{ inputs.filter-outputs }}
+      run: ${{ github.action_path }}/check.sh
