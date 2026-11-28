@@ -15,6 +15,9 @@ jobs:
       pull-requests: read
     outputs:
       workflows: ${{ steps.filter.outputs.workflows }}
+      create-pull-request: ${{ steps.filter.outputs.create-pull-request }}
+      dump-oidc-token: ${{ steps.filter.outputs.dump-oidc-token }}
+      signed-commit: ${{ steps.filter.outputs.signed-commit }}
     steps:
       - uses: cicd-sensor/cicd-sensor-action@2bc31a18949a77cd5f5bd452f24f00fbb507cdf6 # v0.0.41
 
@@ -31,8 +34,28 @@ jobs:
         with:
           token: ${{ github.token }}
           filters: |
+            # ghalint / actionlint の検査対象（と、その設定）だけを見る。.github/ 配下でも CODEOWNERS や release.yml などでは走らせない。
             workflows:
-              - '.github/**'
+              - '.github/workflows/**'
+              - '**/action.yml'
+              - '**/action.yaml'
+              - '.github/actionlint.yaml'
+              - '.github/actionlint.yml'
+              - '.ghalint.yaml'
+              - '.ghalint.yml'
+              - 'ghalint.yaml'
+              - 'ghalint.yml'
+              - '.github/ghalint.yaml'
+              - '.github/ghalint.yml'
+            create-pull-request:
+              - 'create-pull-request/**'
+              - '.github/workflows/ci.yml'
+            dump-oidc-token:
+              - 'dump-oidc-token/**'
+              - '.github/workflows/ci.yml'
+            signed-commit:
+              - 'signed-commit/**'
+              - '.github/workflows/ci.yml'
 
   ghalint:
     needs: changes
@@ -107,11 +130,66 @@ jobs:
             -ignore 'unexpected key "background"' \
             -ignore 'step must run script with "run" section or run action with "uses" section'
 
+  create-pull-request:
+    needs: changes
+    if: needs.changes.outputs['create-pull-request'] == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run shellcheck
+        run: shellcheck create-pull-request/pr.sh
+
+  dump-oidc-token:
+    needs: changes
+    if: needs.changes.outputs['dump-oidc-token'] == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # dump-oidc-token が OIDC の claims を取得する
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run action
+        id: claims
+        uses: ./dump-oidc-token
+
+      - name: Show claims output
+        env:
+          CLAIMS: ${{ steps.claims.outputs.claims }}
+        run: echo "$CLAIMS"
+
+  signed-commit:
+    needs: changes
+    if: needs.changes.outputs['signed-commit'] == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run shellcheck
+        run: shellcheck signed-commit/commit.sh
+
   # The one check that a ruleset requires. Every job above is in `needs`: it fails when one of them failed or was cancelled, and passes
   # when they passed or were skipped (no workflow changed). A job added above has to be added here.
   ci-ok:
     if: always()
-    needs: [changes, ghalint, actionlint]
+    needs: [changes, ghalint, actionlint, create-pull-request, dump-oidc-token, signed-commit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}
@@ -122,5 +200,5 @@ jobs:
         run: |
           echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
           # `changes` has to have answered: a skipped job is only a pass when it was skipped on an answer
-          echo "$NEEDS" | jq -e '.changes.result == "success" and (.changes.outputs.workflows | IN("true", "false"))' > /dev/null
+          echo "$NEEDS" | jq -e '.changes.result == "success" and (.changes.outputs.workflows | IN("true", "false")) and (.changes.outputs["create-pull-request"] | IN("true", "false")) and (.changes.outputs["dump-oidc-token"] | IN("true", "false")) and (.changes.outputs["signed-commit"] | IN("true", "false"))' > /dev/null
           echo "$NEEDS" | jq -e 'all(.[]; .result != "failure" and .result != "cancelled")' > /dev/null
